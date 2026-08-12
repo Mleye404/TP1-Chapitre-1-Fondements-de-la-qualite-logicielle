@@ -24,14 +24,17 @@ public class GestionRendezVous {
     private final List<String[]> rendezVous = new ArrayList<>();
 
     public double ajouterRendezVous(String patient, String type, String date, boolean estVip) {
+
         if (patient == null || patient.trim().isEmpty()) {
             throw new IllegalArgumentException("Le nom du patient est obligatoire");
         }
+
         if (date == null || date.trim().isEmpty()) {
             throw new IllegalArgumentException("La date est obligatoire");
         }
 
         double prix;
+
         if (type.equals("GENERALISTE")) {
             prix = 5000;
         } else if (type.equals("SPECIALISTE")) {
@@ -43,7 +46,10 @@ public class GestionRendezVous {
         }
 
         LocalDate d = LocalDate.parse(date);
-        if (d.getDayOfWeek() == DayOfWeek.SATURDAY || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
+
+        if (d.getDayOfWeek() == DayOfWeek.SATURDAY
+                || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
+
             if (type.equals("GENERALISTE")) {
                 prix = prix + prix * 0.2;
             } else if (type.equals("SPECIALISTE")) {
@@ -54,6 +60,7 @@ public class GestionRendezVous {
         }
 
         if (estVip) {
+
             if (type.equals("GENERALISTE")) {
                 prix = prix - prix * 0.1;
             } else if (type.equals("SPECIALISTE")) {
@@ -63,33 +70,60 @@ public class GestionRendezVous {
             }
         }
 
-        rendezVous.add(new String[]{patient, type, date, String.valueOf(estVip), String.valueOf(prix)});
+        // GREEN : réduction de 15 % à partir du 2e rendez-vous
+        // du même patient à la même date.
+        if (nombreRendezVous(patient, date) >= 1) {
+            prix = prix - prix * 0.15;
+        }
 
-        System.out.println("Rendez-vous ajouté pour " + patient + " (" + type + ") le " + date + " - " + prix + " FCFA");
+        rendezVous.add(new String[]{
+                patient,
+                type,
+                date,
+                String.valueOf(estVip),
+                String.valueOf(prix)
+        });
+
+        System.out.println(
+                "Rendez-vous ajouté pour " + patient
+                        + " (" + type + ") le " + date
+                        + " - " + prix + " FCFA"
+        );
 
         return prix;
     }
 
     public void annulerRendezVous(String patient, String date) {
+
         if (patient == null || patient.trim().isEmpty()) {
             throw new IllegalArgumentException("Le nom du patient est obligatoire");
         }
+
         if (date == null || date.trim().isEmpty()) {
             throw new IllegalArgumentException("La date est obligatoire");
         }
+
         rendezVous.removeIf(r -> r[0].equals(patient) && r[2].equals(date));
-        System.out.println("Rendez-vous annulé pour " + patient + " le " + date);
+
+        System.out.println(
+                "Rendez-vous annulé pour " + patient + " le " + date
+        );
     }
 
     public double calculerTotalFacture(String patient) {
+
         double total = 0;
+
         for (String[] r : rendezVous) {
+
             if (r[0].equals(patient)) {
+
                 String type = r[1];
                 boolean vip = Boolean.parseBoolean(r[3]);
                 String date = r[2];
 
                 double prix;
+
                 if (type.equals("GENERALISTE")) {
                     prix = 5000;
                 } else if (type.equals("SPECIALISTE")) {
@@ -101,7 +135,10 @@ public class GestionRendezVous {
                 }
 
                 LocalDate d = LocalDate.parse(date);
-                if (d.getDayOfWeek() == DayOfWeek.SATURDAY || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
+
+                if (d.getDayOfWeek() == DayOfWeek.SATURDAY
+                        || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
+
                     if (type.equals("GENERALISTE")) {
                         prix = prix + prix * 0.2;
                     } else if (type.equals("SPECIALISTE")) {
@@ -112,6 +149,7 @@ public class GestionRendezVous {
                 }
 
                 if (vip) {
+
                     if (type.equals("GENERALISTE")) {
                         prix = prix - prix * 0.1;
                     } else if (type.equals("SPECIALISTE")) {
@@ -124,22 +162,35 @@ public class GestionRendezVous {
                 total = total + prix;
             }
         }
+
         return total;
     }
 
     public void afficherRendezVous() {
+
         for (String[] r : rendezVous) {
-            System.out.println(r[0] + " | " + r[1] + " | " + r[2] + " | VIP=" + r[3] + " | " + r[4] + " FCFA");
+
+            System.out.println(
+                    r[0] + " | "
+                            + r[1] + " | "
+                            + r[2] + " | VIP="
+                            + r[3] + " | "
+                            + r[4] + " FCFA"
+            );
         }
     }
 
     public int nombreRendezVous(String patient, String date) {
+
         int count = 0;
+
         for (String[] r : rendezVous) {
+
             if (r[0].equals(patient) && r[2].equals(date)) {
                 count++;
             }
         }
+
         return count;
     }
 

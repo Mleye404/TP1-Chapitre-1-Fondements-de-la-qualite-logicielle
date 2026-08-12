@@ -23,58 +23,29 @@ public class GestionRendezVous {
     // Chaque rendez-vous est stocké comme : [patient, type, date, vip, prix]
     private final List<String[]> rendezVous = new ArrayList<>();
 
-    public double ajouterRendezVous(String patient, String type, String date, boolean estVip) {
+    public double ajouterRendezVous(
+            String patient,
+            String type,
+            String date,
+            boolean estVip) {
 
         if (patient == null || patient.trim().isEmpty()) {
-            throw new IllegalArgumentException("Le nom du patient est obligatoire");
+            throw new IllegalArgumentException(
+                    "Le nom du patient est obligatoire");
         }
 
         if (date == null || date.trim().isEmpty()) {
-            throw new IllegalArgumentException("La date est obligatoire");
+            throw new IllegalArgumentException(
+                    "La date est obligatoire");
         }
 
-        double prix;
+        int nombreDejaPris = nombreRendezVous(patient, date);
 
-        if (type.equals("GENERALISTE")) {
-            prix = 5000;
-        } else if (type.equals("SPECIALISTE")) {
-            prix = 10000;
-        } else if (type.equals("URGENCE")) {
-            prix = 15000;
-        } else {
-            throw new IllegalArgumentException("Type de consultation inconnu: " + type);
-        }
-
-        LocalDate d = LocalDate.parse(date);
-
-        if (d.getDayOfWeek() == DayOfWeek.SATURDAY
-                || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
-
-            if (type.equals("GENERALISTE")) {
-                prix = prix + prix * 0.2;
-            } else if (type.equals("SPECIALISTE")) {
-                prix = prix + prix * 0.2;
-            } else if (type.equals("URGENCE")) {
-                prix = prix + prix * 0.2;
-            }
-        }
-
-        if (estVip) {
-
-            if (type.equals("GENERALISTE")) {
-                prix = prix - prix * 0.1;
-            } else if (type.equals("SPECIALISTE")) {
-                prix = prix - prix * 0.1;
-            } else if (type.equals("URGENCE")) {
-                prix = prix - prix * 0.1;
-            }
-        }
-
-        // GREEN : réduction de 15 % à partir du 2e rendez-vous
-        // du même patient à la même date.
-        if (nombreRendezVous(patient, date) >= 1) {
-            prix = prix - prix * 0.15;
-        }
+        double prix = calculerTarif(
+                type,
+                date,
+                estVip,
+                nombreDejaPris);
 
         rendezVous.add(new String[]{
                 patient,
@@ -87,8 +58,56 @@ public class GestionRendezVous {
         System.out.println(
                 "Rendez-vous ajouté pour " + patient
                         + " (" + type + ") le " + date
-                        + " - " + prix + " FCFA"
-        );
+                        + " - " + prix + " FCFA");
+
+        return prix;
+    }
+
+    /**
+     * Calcule le tarif d'un rendez-vous.
+     *
+     * Ordre des règles :
+     * 1. Tarif de base
+     * 2. Majoration weekend
+     * 3. Réduction VIP
+     * 4. Réduction dégressive
+     */
+    private double calculerTarif(
+            String type,
+            String date,
+            boolean estVip,
+            int nombreDejaPris) {
+
+        double prix;
+
+        if (type.equals("GENERALISTE")) {
+            prix = 5000;
+        } else if (type.equals("SPECIALISTE")) {
+            prix = 10000;
+        } else if (type.equals("URGENCE")) {
+            prix = 15000;
+        } else {
+            throw new IllegalArgumentException(
+                    "Type de consultation inconnu: " + type);
+        }
+
+        LocalDate d = LocalDate.parse(date);
+
+        // Majoration weekend
+        if (d.getDayOfWeek() == DayOfWeek.SATURDAY
+                || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            prix = prix + prix * 0.2;
+        }
+
+        // Réduction VIP
+        if (estVip) {
+            prix = prix - prix * 0.1;
+        }
+
+        // Réduction dégressive à partir du 2e rendez-vous
+        if (nombreDejaPris >= 1) {
+            prix = prix - prix * 0.15;
+        }
 
         return prix;
     }
@@ -96,18 +115,20 @@ public class GestionRendezVous {
     public void annulerRendezVous(String patient, String date) {
 
         if (patient == null || patient.trim().isEmpty()) {
-            throw new IllegalArgumentException("Le nom du patient est obligatoire");
+            throw new IllegalArgumentException(
+                    "Le nom du patient est obligatoire");
         }
 
         if (date == null || date.trim().isEmpty()) {
-            throw new IllegalArgumentException("La date est obligatoire");
+            throw new IllegalArgumentException(
+                    "La date est obligatoire");
         }
 
-        rendezVous.removeIf(r -> r[0].equals(patient) && r[2].equals(date));
+        rendezVous.removeIf(
+                r -> r[0].equals(patient) && r[2].equals(date));
 
         System.out.println(
-                "Rendez-vous annulé pour " + patient + " le " + date
-        );
+                "Rendez-vous annulé pour " + patient + " le " + date);
     }
 
     public double calculerTotalFacture(String patient) {
@@ -122,42 +143,17 @@ public class GestionRendezVous {
                 boolean vip = Boolean.parseBoolean(r[3]);
                 String date = r[2];
 
-                double prix;
-
-                if (type.equals("GENERALISTE")) {
-                    prix = 5000;
-                } else if (type.equals("SPECIALISTE")) {
-                    prix = 10000;
-                } else if (type.equals("URGENCE")) {
-                    prix = 15000;
-                } else {
-                    prix = 0;
-                }
-
-                LocalDate d = LocalDate.parse(date);
-
-                if (d.getDayOfWeek() == DayOfWeek.SATURDAY
-                        || d.getDayOfWeek() == DayOfWeek.SUNDAY) {
-
-                    if (type.equals("GENERALISTE")) {
-                        prix = prix + prix * 0.2;
-                    } else if (type.equals("SPECIALISTE")) {
-                        prix = prix + prix * 0.2;
-                    } else if (type.equals("URGENCE")) {
-                        prix = prix + prix * 0.2;
-                    }
-                }
-
-                if (vip) {
-
-                    if (type.equals("GENERALISTE")) {
-                        prix = prix - prix * 0.1;
-                    } else if (type.equals("SPECIALISTE")) {
-                        prix = prix - prix * 0.1;
-                    } else if (type.equals("URGENCE")) {
-                        prix = prix - prix * 0.1;
-                    }
-                }
+                /*
+                 * On réutilise la logique centralisée de calcul du tarif.
+                 *
+                 * Le nombreDejaPris vaut 0 ici afin de conserver le
+                 * comportement caractérisé par les tests existants.
+                 */
+                double prix = calculerTarif(
+                        type,
+                        date,
+                        vip,
+                        0);
 
                 total = total + prix;
             }
@@ -175,8 +171,7 @@ public class GestionRendezVous {
                             + r[1] + " | "
                             + r[2] + " | VIP="
                             + r[3] + " | "
-                            + r[4] + " FCFA"
-            );
+                            + r[4] + " FCFA");
         }
     }
 
@@ -193,10 +188,4 @@ public class GestionRendezVous {
 
         return count;
     }
-
-    // TODO (TP1, étape TDD) : ajoutez ici le tarif dégressif de 15% pour le
-    // 2e rendez-vous (et les suivants) d'un même patient à la même date.
-    // Écrivez d'abord le test dans GestionRendezVousTest (RED), faites-le
-    // passer avec le code le plus simple possible (GREEN), puis nettoyez
-    // (REFACTOR) en gardant tous les tests verts.
 }

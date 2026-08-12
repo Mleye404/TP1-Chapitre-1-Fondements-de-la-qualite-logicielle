@@ -48,4 +48,19 @@ class GestionRendezVousTest {
     // TODO (TP1, étape TDD) : écrivez ici vos tests pour le tarif dégressif
     // du 2e rendez-vous du même patient le même jour, AVANT d'implémenter la
     // fonctionnalité dans GestionRendezVous (cycle RED -> GREEN -> REFACTOR).
+
+    @Test
+    void ajouterRendezVous_deuxiemeRendezVousMemePatientMemeDate_tarifReduit() {
+    GestionRendezVous g = new GestionRendezVous();
+
+        g.ajouterRendezVous("Awa Ndiaye", "GENERALISTE", "2026-07-21", false);
+        double prixDeuxieme = g.ajouterRendezVous(
+            "Awa Ndiaye",
+            "GENERALISTE",
+            "2026-07-21",
+            false
+    );
+
+        assertEquals(4250, prixDeuxieme);
+    }
 }

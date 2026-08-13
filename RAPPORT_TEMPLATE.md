@@ -1,6 +1,6 @@
 # Rapport qualité - TP1 SunuSanté
 
-Nom / Groupe :
+Nom / Groupe : Seydina Mouhamed Lybass Pouye - Mouhamadou Leye / Groupe 3
 
 ## 1. Qualité interne vs externe
 

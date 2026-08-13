@@ -8,13 +8,15 @@ Avant toute modification, `mvn test` était vert. Cela garantit-il une bonne
 qualité interne ? Expliquez en une ou deux phrases, en citant les indices
 concrets de la version de départ qui montrent un problème de qualité
 interne malgré des tests verts.
+Non. Des tests verts montrent que les fonctionnalités testées fonctionnent, mais ils ne garantissent pas la qualité interne du code. Dans la version initiale, une seule classe regroupe plusieurs responsabilités et la logique de tarification est dupliquée, ce qui nuit à la maintenabilité.
 
 ## 2. Complexité cyclomatique (avant / après)
 
-| Méthode | Complexité avant | Niveau de risque avant | Complexité après | Niveau de risque après |
-|---|---|---|---|---|
-| `ajouterRendezVous` | | | | |
-| `calculerTotalFacture` | | | | |
+| Méthode                | Complexité avant | Niveau de risque avant | Complexité après | Niveau de risque après |
+| ---------------------- | ---------------: | ---------------------- | ---------------: | ---------------------- |
+| `ajouterRendezVous`    |           **17** | **Modérée**            |                  |                        |
+| `calculerTotalFacture` |           **14** | **Modérée**            |                  |                        |
+
 
 ## 3. Dette technique identifiée (matrice de Fowler)
 
